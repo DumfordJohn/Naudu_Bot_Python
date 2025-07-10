@@ -29,5 +29,17 @@
         ],
         "message_id": 1392903968530628823,
         "channel_id": 1392894641988440074
+    },
+    "testremove": {
+        "type": "single",
+        "players": [],
+        "message_id": 1392905949546676264,
+        "channel_id": 1392894641988440074
+    },
+    "testsubcogs": {
+        "type": "single",
+        "players": [],
+        "message_id": 1392913651458904105,
+        "channel_id": 1392894641988440074
     }
 }

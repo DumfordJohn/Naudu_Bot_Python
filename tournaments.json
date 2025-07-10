@@ -1,0 +1,33 @@
+{
+    "test2": {
+        "type": "single",
+        "players": [],
+        "message_id": 1392898244723343380,
+        "channel_id": 1392894641988440074
+    },
+    "test3": {
+        "type": "single",
+        "players": [],
+        "message_id": 1392900480224596030,
+        "channel_id": 1392894641988440074
+    },
+    "test": {
+        "type": "single",
+        "players": [
+            294082562211577856
+        ],
+        "message_id": 1392902356374655076,
+        "channel_id": 1392894641988440074
+    },
+    "testembed": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            }
+        ],
+        "message_id": 1392903968530628823,
+        "channel_id": 1392894641988440074
+    }
+}

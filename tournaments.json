@@ -41,5 +41,53 @@
         "players": [],
         "message_id": 1392913651458904105,
         "channel_id": 1392894641988440074
+    },
+    "testslash": {
+        "type": "single",
+        "players": [],
+        "message_id": null,
+        "channel_id": null
+    },
+    "testslashsign": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            },
+            {
+                "name": "MCsocko",
+                "id": 1201869255201525851
+            }
+        ],
+        "message_id": 1392938908563669153,
+        "channel_id": 1392894641988440074,
+        "matches": [
+            [
+                "Naudu",
+                "MCsocko"
+            ]
+        ]
+    },
+    "testing": {
+        "type": "single",
+        "players": [
+            {
+                "name": "SpoopyDucks",
+                "id": 305720762046611457
+            },
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            }
+        ],
+        "message_id": 1392949889658523669,
+        "channel_id": 1392894641988440074,
+        "matches": [
+            [
+                "SpoopyDucks",
+                "Naudu"
+            ]
+        ]
     }
 }

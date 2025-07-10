@@ -14,6 +14,6 @@ def load_tournaments():
             _tournaments = {}
     return _tournaments
 
-def save_tournaments():
+def save_tournaments(data):
     with open(TOURNAMENT_FILE, "w") as f:
         json.dump(_tournaments, f, indent=4)

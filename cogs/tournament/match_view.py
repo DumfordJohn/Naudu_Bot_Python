@@ -9,5 +9,13 @@ class MatchView(View):
         self.player1 = player1
         self.player2 = player2
 
-        self.add_item(Button(label=f"{player1} Wins", style=discord.ButtonStyle.success,custom_id=f"{tournament_name}|{match_index}|1"))
-        self.add_item(Button(lable=f"{player2} Wins", style=discord.ButtonStyle.success,custom_id=f"{tournament_name}|{match_index}|2"))
+        self.add_item(Button(
+            label=f"{player1} Wins",
+            style=discord.ButtonStyle.success,
+            custom_id=f"{tournament_name}|{match_index}|1"
+        ))
+        self.add_item(Button(
+            label=f"{player2} Wins",
+            style=discord.ButtonStyle.success,
+            custom_id=f"{tournament_name}|{match_index}|2"
+        ))

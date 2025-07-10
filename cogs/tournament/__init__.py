@@ -1,0 +1,1 @@
+print("TournamentSetup cog loaded")

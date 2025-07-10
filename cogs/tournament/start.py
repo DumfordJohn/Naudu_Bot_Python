@@ -1,25 +1,41 @@
 import discord
 import random
 from discord.ext import commands
+from discord import app_commands
+
+from bot import GUILD_ID
 from tournament_data import load_tournaments, save_tournaments
 from .match_view import MatchView
+
+#GUILD_ID = 123456789012345678  # ← Replace with your server ID if you're syncing to a test server
 
 class TournamentStart(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.tournaments = load_tournaments()
 
-    @commands.command()
-    async def start_tournament(self, ctx, name: str):
+    @app_commands.guilds(discord.Object(id=GUILD_ID))
+    @app_commands.command(name="start_tournament", description="Start a tournament and create matches.")
+    @app_commands.describe(name="The name of the tournament to start")
+    async def start_tournament(self, interaction: discord.Interaction, name: str):
+        print("📥 Received start_tournament command")
+
+        # ✅ Defer immediately to prevent timeout
+        await interaction.response.defer()
+
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.followup.send("❌ You must be an admin to start a tournament.", ephemeral=True)
+            return
+
         if name not in self.tournaments:
-            await ctx.send(f"Touranment `{name}` does not exist.")
+            await interaction.followup.send(f"❌ Tournament `{name}` does not exist.", ephemeral=True)
             return
 
         tournament = self.tournaments[name]
         players = tournament.get("players", [])
 
         if len(players) < 2:
-            await ctx.send("Not enough players to start a tournament.")
+            await interaction.followup.send("❌ Not enough players to start the tournament.", ephemeral=True)
             return
 
         random.shuffle(players)
@@ -31,8 +47,14 @@ class TournamentStart(commands.Cog):
             else:
                 matchups.append((players[i]["name"], "BYE"))
 
-        channel = self.bot.get_channel(tournament["channel_id"])
-        signup_message = await channel.fetch_message(tournament["message_id"])
+        channel = interaction.channel
+
+        try:
+            signup_message = await channel.fetch_message(tournament["message_id"])
+        except Exception as e:
+            print(f"❌ Error fetching message: {e}")
+            await interaction.followup.send("❌ Could not fetch the original signup message.", ephemeral=True)
+            return
 
         thread = await signup_message.create_thread(
             name=f"{name} Bracket",
@@ -40,10 +62,14 @@ class TournamentStart(commands.Cog):
             reason="Tournament start"
         )
 
+        mentions = [f"<@{p['id']}>" for p in players]
+        mention_text = " ".join(mentions)
+        await thread.send(f"Tournament Starting! Participants: {mention_text}")
+
         for i, (p1, p2) in enumerate(matchups):
             embed = discord.Embed(
-                title=f"Match {i+1}: {p1} vs {p2}",
-                descritption="Click a button below to report the winner.",
+                title=f"Match {i + 1}: {p1} vs {p2}",
+                description="Click a button below to report the winner.",
                 color=discord.Color.green()
             )
             view = MatchView(
@@ -52,13 +78,14 @@ class TournamentStart(commands.Cog):
                 player1=p1,
                 player2=p2
             )
-
-        await thread.send(embed=embed, view=view)
+            await thread.send(embed=embed, view=view)
 
         tournament["matches"] = matchups
-        save_tournaments()
+        save_tournaments(self.tournaments)
 
-        await ctx.send(f"Tournament `{name}` has started! Check the thread: {thread.mention}")
+        await interaction.followup.send(f"✅ Tournament `{name}` has started! Matches posted in {thread.mention}.",
+                                        ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(TournamentStart(bot))

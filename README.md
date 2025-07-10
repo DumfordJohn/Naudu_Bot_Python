@@ -1,0 +1,1 @@
+Day 1 (7/10/25): Bot will accept reactions for tournament signups and split them into different matches.  I am able to choose the winner of the first match but unable to select a winner of any other matches.

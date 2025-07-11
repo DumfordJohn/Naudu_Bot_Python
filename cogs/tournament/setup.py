@@ -1,3 +1,5 @@
+# cogs/tournament/setup.py
+
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -14,68 +16,63 @@ class TournamentSetup(commands.Cog):
         name="Name of the tournament",
         type="Tournament type (single, double, roundrobin)"
     )
-
-
     async def create_tournament(self, interaction: discord.Interaction, name: str, type: str):
-        print("✅ Registered create_tournament command")
         await interaction.response.defer(ephemeral=True)
-        print(f"📥 Received create_tournament: {name=} {type=}")
+        print(f"📥 Received create_tournament: name={name}, type={type}")
+
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.followup.send("❌ You must be an admin to use this command.", ephemeral=True)
+            return
+
+        tournaments = load_tournaments()
+
+        if name in tournaments:
+            await interaction.followup.send(f"❌ Tournament `{name}` already exists.", ephemeral=True)
+            return
+
+        if type not in ["single", "double", "roundrobin"]:
+            await interaction.followup.send(
+                "❌ Invalid type. Use: `single`, `double`, or `roundrobin`.", ephemeral=True
+            )
+            return
+
+        signup_channel = discord.utils.get(interaction.guild.text_channels, name="sign-ups")
+        if not signup_channel:
+            await interaction.followup.send("❌ Could not find a #sign-ups channel.", ephemeral=True)
+            return
+
+        embed = discord.Embed(
+            title=f"{name} Tournament Sign-Up",
+            description="React with 🎮 to join!",
+            color=discord.Color.green()
+        )
 
         try:
-            if not interaction.user.guild_permissions.administrator:
-                await interaction.followup.send("❌ You must be an admin to use this command.", ephemeral=True)
-                return
-
-            tournaments = load_tournaments()
-            print(f"📂 Loaded tournaments: {list(tournaments.keys())}")
-
-            if name in tournaments:
-                await interaction.followup.send(f"❌ Tournament `{name}` already exists.", ephemeral=True)
-                return
-
-            if type not in ["single", "double", "roundrobin"]:
-                await interaction.followup.send("❌ Invalid type. Use: `single`, `double`, or `roundrobin`.",
-                                                ephemeral=True)
-                return
-
-            # 🔍 Find the sign-up channel (by name or ID)
-            signup_channel = discord.utils.get(interaction.guild.text_channels, name="sign-ups")
-            if not signup_channel:
-                await interaction.followup.send("❌ Could not find a #sign-ups channel.", ephemeral=True)
-                return
-
-            # 📦 Create the embed
-            embed = discord.Embed(
-                title=f"{name} Tournament Sign-Up",
-                description="React with 🎮 to join!",
-                color=discord.Color.green()
-            )
-
-            print("about to send the embed")
             signup_message = await signup_channel.send(embed=embed)
-            print(f"📨 Signup message sent (ID={signup_message.id})")
             await signup_message.add_reaction("🎮")
+        except Exception as e:
+            print(f"❌ Failed to send or react to message: {e}")
+            await interaction.followup.send("❌ Failed to post sign-up message.", ephemeral=True)
+            return
 
+        tournaments[name] = {
+            "type": type,
+            "players": [],
+            "message_id": signup_message.id,
+            "channel_id": signup_channel.id
+        }
 
-            # 💾 Save tournament info with message + channel IDs
-            tournaments[name] = {
-                "type": type,
-                "players": [],
-                "message_id": signup_message.id,
-                "channel_id": signup_channel.id
-            }
-
+        try:
             save_tournaments(tournaments)
             print(f"💾 Tournament saved: {name}")
-
-            await interaction.followup.send(
-                f"✅ Tournament `{name}` created and posted in {signup_channel.mention}.",
-                ephemeral=True
-            )
-
         except Exception as e:
-            print(f"[ERROR] create_tournament: {e}")
-            await interaction.followup.send("❌ An unexpected error occurred.", ephemeral=True)
+            print(f"❌ Failed to save tournament: {e}")
+            await interaction.followup.send("❌ Failed to save tournament data.", ephemeral=True)
+            return
+
+        await interaction.followup.send(
+            f"✅ Tournament `{name}` created and posted in {signup_channel.mention}.", ephemeral=True
+        )
 
 
 async def setup(bot):

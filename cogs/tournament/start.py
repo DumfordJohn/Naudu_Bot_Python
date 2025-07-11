@@ -64,23 +64,33 @@ class TournamentStart(commands.Cog):
 
         mentions = [f"<@{p['id']}>" for p in players]
         mention_text = " ".join(mentions)
-        await thread.send(f"Tournament Starting! Participants: {mention_text}")
 
         for i, (p1, p2) in enumerate(matchups):
+            p1_data = next((p for p in players if p["name"] == p1), None)
+            p2_data = next((p for p in players if p["name"] == p2), None)
+
+            p1_mention = f"<@{p1_data['id']}>" if p1_data else p1
+            p2_mention = f"<@{p2_data['id']}>" if p2_data else p2
+
             embed = discord.Embed(
                 title=f"Match {i + 1}: {p1} vs {p2}",
                 description="Click a button below to report the winner.",
                 color=discord.Color.green()
             )
+
+            embed.add_field(name="Participants", value=f"{p1_mention} vs {p2_mention}", inline=False)
+
             view = MatchView(
                 tournament_name=name,
+                round_index=0,
                 match_index=i,
                 player1=p1,
                 player2=p2
             )
+
             await thread.send(embed=embed, view=view)
 
-        tournament["matches"] = matchups
+        tournament["rounds"] = [matchups]
         save_tournaments(self.tournaments)
 
         await interaction.followup.send(f"✅ Tournament `{name}` has started! Matches posted in {thread.mention}.",

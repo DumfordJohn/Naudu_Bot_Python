@@ -89,5 +89,156 @@
                 "Naudu"
             ]
         ]
+    },
+    "testEmbedPing": {
+        "type": "single",
+        "players": [
+            {
+                "name": "MCsocko",
+                "id": 1201869255201525851
+            },
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            }
+        ],
+        "message_id": 1392958602406400052,
+        "channel_id": 1392894641988440074,
+        "matches": [
+            {
+                "player1": "MCsocko",
+                "player2": "Naudu",
+                "winner": "MCsocko"
+            }
+        ]
+    },
+    "testNextRound": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            },
+            {
+                "name": "SpoopyDucks",
+                "id": 305720762046611457
+            },
+            {
+                "name": "Meghan Mozzone",
+                "id": 760699619532865597
+            }
+        ],
+        "message_id": 1392967132744122368,
+        "channel_id": 1392894641988440074,
+        "matches": [
+            {
+                "player1": "Naudu",
+                "player2": "SpoopyDucks",
+                "winner": "Naudu"
+            },
+            {
+                "player1": "Meghan Mozzone",
+                "player2": "BYE",
+                "winner": "Meghan Mozzone"
+            }
+        ]
+    },
+    "testMultiRound": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu Alt",
+                "id": 1393233478962909356
+            },
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            },
+            {
+                "name": "Meghan Mozzone",
+                "id": 760699619532865597
+            }
+        ],
+        "message_id": 1393241245001973910,
+        "channel_id": 1392894641988440074
+    },
+    "testMultiRound2": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            },
+            {
+                "name": "Naudu Alt",
+                "id": 1393233478962909356
+            },
+            {
+                "name": "Meghan Mozzone",
+                "id": 760699619532865597
+            }
+        ],
+        "message_id": 1393243454967906529,
+        "channel_id": 1392894641988440074,
+        "rounds": [
+            [
+                {
+                    "player1": "Naudu",
+                    "player2": "Naudu Alt",
+                    "winner": "Naudu"
+                },
+                {
+                    "player1": "Meghan Mozzone",
+                    "player2": "BYE",
+                    "winner": "Meghan Mozzone"
+                }
+            ],
+            [
+                [
+                    "Naudu",
+                    "Meghan Mozzone"
+                ]
+            ]
+        ]
+    },
+    "testMultiRound3": {
+        "type": "single",
+        "players": [
+            {
+                "name": "Naudu",
+                "id": 294082562211577856
+            },
+            {
+                "name": "Naudu Alt",
+                "id": 1393233478962909356
+            },
+            {
+                "name": "Meghan Mozzone",
+                "id": 760699619532865597
+            }
+        ],
+        "message_id": 1393244528122658846,
+        "channel_id": 1392894641988440074,
+        "rounds": [
+            [
+                {
+                    "player1": "Naudu",
+                    "player2": "Naudu Alt",
+                    "winner": "Naudu"
+                },
+                {
+                    "player1": "Meghan Mozzone",
+                    "player2": "BYE",
+                    "winner": "Meghan Mozzone"
+                }
+            ],
+            [
+                {
+                    "player1": "Meghan Mozzone",
+                    "player2": "Naudu",
+                    "winner": "Meghan Mozzone"
+                }
+            ]
+        ]
     }
 }

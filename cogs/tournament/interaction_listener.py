@@ -3,7 +3,7 @@
 import discord
 from discord.ext import commands
 from tournament_data import load_tournaments, save_tournaments
-from cogs.tournament.match_view import MatchView
+from cogs.tournament.match_view import MatchView  # Ensure MatchView is correctly defined in match_view.py
 import random
 
 class InteractionListener(commands.Cog):
@@ -71,7 +71,10 @@ class InteractionListener(commands.Cog):
             return
 
         random.shuffle(winners)
-        next_round = [(winners[i], winners[i+1]) if i+1 < len(winners) else (winners[i], "BYE") for i in range(0, len(winners), 2)]
+        next_round = [
+            (winners[i], winners[i+1]) if i+1 < len(winners) else (winners[i], "BYE")
+            for i in range(0, len(winners), 2)
+        ]
 
         new_round_index = len(rounds)
         tournament["rounds"].append(next_round)

@@ -44,5 +44,6 @@ class SignupRemove(commands.Cog):
                 await message.edit(embed=embed)
                 break
 
+
 async def setup(bot):
     await bot.add_cog(SignupRemove(bot))

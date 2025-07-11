@@ -1,6 +1,10 @@
+# cogs/tournament/interaction_listener.py
+
 import discord
 from discord.ext import commands
 from tournament_data import load_tournaments, save_tournaments
+from cogs.tournament.match_view import MatchView
+import random
 
 class InteractionListener(commands.Cog):
     def __init__(self, bot):
@@ -40,10 +44,10 @@ class InteractionListener(commands.Cog):
             p1 = match.get("player1")
             p2 = match.get("player2")
             if "winner" in match:
-                await interaction.response.send_message("Winner already chosen for this match.", empheral=True)
+                await interaction.response.send_message("Winner already chosen for this match.", ephemeral=True)
                 return
         else:
-            await interaction.response.send_message("Invalid match data.", emphemeral=True)
+            await interaction.response.send_message("Invalid match data.", ephemeral=True)
             return
 
         winner_name = p1 if winner == 1 else p2
@@ -66,14 +70,8 @@ class InteractionListener(commands.Cog):
             await interaction.followup.send(f"Tournament **{tournament_name}** winner: **{winners[0]}**")
             return
 
-        import random
         random.shuffle(winners)
-        next_round = []
-        for i in range(0, len(winners), 2):
-            if i + 1 < len(winners):
-                next_round.append((winners[i], winners[i + 1]))
-            else:
-                next_round.append((winners[i], "BYE"))
+        next_round = [(winners[i], winners[i+1]) if i+1 < len(winners) else (winners[i], "BYE") for i in range(0, len(winners), 2)]
 
         new_round_index = len(rounds)
         tournament["rounds"].append(next_round)
@@ -81,16 +79,15 @@ class InteractionListener(commands.Cog):
 
         thread = interaction.channel if isinstance(interaction.channel, discord.Thread) else None
         if thread:
-            from cogs.tournament.match_view import MatchView
             for i, (p1, p2) in enumerate(next_round):
                 embed = discord.Embed(
                     title=f"Next Round - Match {i+1}: {p1} vs {p2}",
                     description="Click a button below to report the winner.",
                     color=discord.Color.green()
                 )
-                p1_id = f"<@{p1}" if p1.isdigit() else p1
-                p2_id = f"<@{p2}" if p2.isdigit() else p2
-                embed.add_field(name="Participants", value=f"{p1_id} vs {p2_id}", inline=False)
+                p1_mention = f"<@{p1}>" if str(p1).isdigit() else p1
+                p2_mention = f"<@{p2}>" if str(p2).isdigit() else p2
+                embed.add_field(name="Participants", value=f"{p1_mention} vs {p2_mention}", inline=False)
 
                 view = MatchView(
                     tournament_name=tournament_name,
@@ -102,6 +99,7 @@ class InteractionListener(commands.Cog):
                 await thread.send(embed=embed, view=view)
 
         await interaction.response.send_message(f"Match recorded: **{winner_name}**. Next round started!")
+
 
 async def setup(bot):
     await bot.add_cog(InteractionListener(bot))

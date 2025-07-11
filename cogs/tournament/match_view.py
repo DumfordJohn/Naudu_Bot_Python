@@ -1,8 +1,10 @@
+# cogs/tournament/match_view.py
+
 import discord
 from discord.ui import View, Button
 
 class MatchView(View):
-    def __init__(self, tournament_name, round_index, match_index, player1, player2):
+    def __init__(self, tournament_name: str, round_index: int, match_index: int, player1: str, player2: str):
         super().__init__(timeout=None)
         self.tournament_name = tournament_name
         self.round_index = round_index
@@ -11,12 +13,13 @@ class MatchView(View):
         self.player2 = player2
 
         self.add_item(Button(
-            label=f"{player1}",
+            label=self.player1,
             style=discord.ButtonStyle.success,
-            custom_id=f"{tournament_name}|{round_index}|{match_index}|1"
+            custom_id=f"{self.tournament_name}|{self.round_index}|{self.match_index}|1"
         ))
+
         self.add_item(Button(
-            label=f"{player2}",
+            label=self.player2,
             style=discord.ButtonStyle.success,
-            custom_id=f"{tournament_name}|{round_index}|{match_index}|2"
+            custom_id=f"{self.tournament_name}|{self.round_index}|{self.match_index}|2"
         ))

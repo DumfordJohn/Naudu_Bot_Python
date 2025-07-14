@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+GUILD_ID = 1125407155537854504
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -18,11 +20,14 @@ bot = commands.Bot(command_prefix=None, intents=intents)
 @bot.event
 async def on_ready():
     if not hasattr(bot, "synced"):
+        guild = discord.Object(id=GUILD_ID)
         await bot.tree.sync()
         bot.synced = True
         print("Synced global commands:")
         for command in await bot.tree.fetch_commands():
             print(f" - /{command.name}: {command.description}")
+        await bot.tree.sync(guild=guild)
+        print(f"Synced commands to guild {GUILD_ID}")
     print(f"Logged in as {bot.user}")
 
 async def load_all_cogs():

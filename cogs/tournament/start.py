@@ -2,8 +2,6 @@ import discord
 import random
 from discord.ext import commands
 from discord import app_commands
-
-from bot import GUILD_ID
 from tournament_data import load_tournaments, save_tournaments
 from .match_view import MatchView
 
@@ -12,7 +10,6 @@ class TournamentStart(commands.Cog):
         self.bot = bot
         self.tournaments = load_tournaments()
 
-    @app_commands.guilds(discord.Object(id=GUILD_ID))
     @app_commands.command(name="start_tournament", description="Start a tournament and create matches.")
     @app_commands.describe(name="The name of the tournament to start")
     async def start_tournament(self, interaction: discord.Interaction, name: str):

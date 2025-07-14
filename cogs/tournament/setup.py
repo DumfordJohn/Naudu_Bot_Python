@@ -3,14 +3,12 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from bot import GUILD_ID
 from tournament_data import load_tournaments, save_tournaments
 
 class TournamentSetup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.guilds(discord.Object(id=GUILD_ID))
     @app_commands.command(name="create_tournament", description="Create a new tournament.")
     @app_commands.describe(
         name="Name of the tournament",

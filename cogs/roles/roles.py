@@ -4,7 +4,7 @@ import os
 from discord.ext import commands
 from discord import app_commands
 
-CONFIG_DIR = "reaction_configs"
+CONFIG_DIR = "cogs/roles/reaction_configs"
 os.makedirs(CONFIG_DIR, exist_ok=True)
 
 def config_path(guild: discord.Guild):

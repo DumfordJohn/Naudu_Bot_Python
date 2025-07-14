@@ -76,20 +76,34 @@ class ReactionRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        if self.message_ids.get(payload.guild_id) != payload.message_id or payload.user_id == self.bot.user.id:
+        print(f"Reaction added: emoji={payload.emoji}, user_id={payload.user_id}, message_id={payload.message_id}")
+
+        if payload.user_id == self.bot.user.id:
+            return
+
+        if self.message_ids.get(payload.guild_id) != payload.message_id:
+            print(f"⛔ Message ID does not match configured message for guild {payload.guild_id}")
             return
 
         guild = self.bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         emoji = str(payload.emoji)
         config = load_config(guild)
+
+        print(f"🔍 Looking up config for guild_id={payload.guild_id}")
         role_name = config.get(emoji)
 
         if role_name:
             role = discord.utils.get(guild.roles, name=role_name)
             if role:
-                await member.add_roles(role)
-                print(f"Role '{role.name}' added to {member.display_name}.")
+                print(f"✅ Role match found. Trying to assign role '{role.name}' to user '{member.display_name}'")
+                try:
+                    await member.add_roles(role)
+                    print(f"🎉 Role '{role.name}' added to {member.display_name}")
+                except discord.Forbidden:
+                    print(f"⚠️ Missing permissions to add role '{role.name}'")
+                except discord.HTTPException as e:
+                    print(f"❌ Failed to add role: {e}")
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):

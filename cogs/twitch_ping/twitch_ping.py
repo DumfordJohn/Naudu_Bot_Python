@@ -18,6 +18,7 @@ class TwitchNotifier(commands.Cog):
         self.access_token = None
         self.headers = {}
         self.config = self.load_config()
+        self.live_streams = set()
         self.check_stream.start()
 
     def cog_unload(self):
@@ -26,14 +27,18 @@ class TwitchNotifier(commands.Cog):
     def load_config(self):
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r") as f:
+                print("Loaded Twitch notifier config.")
                 return json.load(f)
+        print("No config file found, starting fresh.")
         return {}
 
     def save_config(self):
         with open(CONFIG_FILE, "w") as f:
             json.dump(self.config, f, indent=2)
+            print("Saved Twitch notifier config.")
 
     async def get_token(self):
+        print("fetching new twitch access token...")
         url = "https://id.twitch.tv/oauth2/token"
         params = {
             "client_id": TWITCH_CLIENT_ID,
@@ -48,11 +53,13 @@ class TwitchNotifier(commands.Cog):
                     "Client-ID": TWITCH_CLIENT_ID,
                     "Authorization": f"Bearer {self.access_token}",
                 }
+                print("Twitch token obtained")
 
     @app_commands.guilds(discord.Object(id=GUILD_ID))
     @app_commands.command(name="set_ping", description="Set the streamer and Discord channel to notify")
     @app_commands.describe(streamer="Twitch streamer username", channel="Channel to post the notifications")
     async def set_ping(self, interaction: discord.Interaction, streamer: str, channel: discord.TextChannel):
+        print(f"Setting Twitch notifier for guild {interaction.guild_id} to streamer '{streamer}' and channel {channel.id}'")
         self.config[str(interaction.guild_id)] = {
             "streamer": streamer,
             "channel_id": channel.id
@@ -62,6 +69,7 @@ class TwitchNotifier(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def check_stream(self):
+        print("Checking Twitch streams...")
         if not self.access_token:
             await self.get_token()
 
@@ -70,27 +78,41 @@ class TwitchNotifier(commands.Cog):
             channel_id = settings["channel_id"]
 
             url = f"https://api.twitch.tv/helix/streams?user_login={streamer_login}"
+            print(f"Querying Twitch API for {streamer_login}")
+
             async with aiohttp.ClientSession(headers=self.headers) as session:
                 async with session.get(url) as resp:
                     data = await resp.json()
+                    print(f"Twitch API for {streamer_login}: {data}")
+
                     if data.get("data"):
-                        stream = data["data"][0]
-                        title = stream["title"]
-                        game = stream.get("game_name", "")
-                        thumbnail = stream["thumbnail_url"].replace("{width}", "1280").replace("{height}", "720")
+                        if streamer_login not in self.live_streams:
+                            stream = data["data"][0]
+                            title = stream["title"]
+                            game = stream.get("game_name", "")
+                            thumbnail = stream["thumbnail_url"].replace("{width}", "1280").replace("{height}", "720")
 
-                        embed = discord.Embed(
-                            title=title,
-                            url=f"https://twitch.tv/{streamer_login}",
-                            description=f"{streamer_login} is now live playing {game}!",
-                            color=discord.Color.blue()
-                        )
-                        embed.set_image(url=thumbnail)
-                        embed.set_author(name=streamer_login, url=f"https://twitch.tv/{streamer_login}", icon_url="https://static-cdn.jtvnw.net/jtv_user_pictures/hosted_images/TwitchGlitchPurple.png")
+                            embed = discord.Embed(
+                                title=title,
+                                url=f"https://twitch.tv/{streamer_login}",
+                                description=f"{streamer_login} is now live playing {game}!",
+                                color=discord.Color.blue()
+                            )
+                            embed.set_image(url=thumbnail)
+                            embed.set_author(name=streamer_login, url=f"https://twitch.tv/{streamer_login}", icon_url="https://static-cdn.jtvnw.net/jtv_user_pictures/hosted_images/TwitchGlitchPurple.png")
 
-                        channel = self.bot.get_channel(channel_id)
-                        if channel:
-                            await channel.send(f"{streamer_login} is live!", embed=embed)
+                            channel = self.bot.get_channel(channel_id)
+                            if channel:
+                                await channel.send(f"{streamer_login} is live!", embed=embed)
+                                print(f"Sent notification to channel {channel.id} for {streamer_login}")
+                            else:
+                                print(f"Could not find channel {channel_id} in guild {guild_id}")
+                        else:
+                            print(f"{streamer_login} is not live.")
+                    else:
+                        if streamer_login in self.live_streams:
+                            self.live_streams.remove(streamer_login)
+                            print(f"{streamer_login} has ended their stream.")
 
 async def setup(bot):
     await bot.add_cog(TwitchNotifier(bot))
